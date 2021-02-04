@@ -5,10 +5,10 @@ import copy from 'rollup-plugin-copy';
 import progress from 'rollup-plugin-progress';
 import postcss from 'rollup-plugin-postcss';
 import serve from 'rollup-plugin-serve';
+import * as path from "path";
 
-// `npm run build` -> `production` is true
-// `npm run dev` -> `production` is false
-const production = !process.env.ROLLUP_WATCH;
+
+const production = process.env.NODE_ENV === 'production';
 
 export default {
     input: 'src/index.js',
@@ -18,12 +18,22 @@ export default {
         sourcemap: !production
     },
     plugins: [
+        {
+            name: 'watch-external',
+            buildStart() {
+                this.addWatchFile(path.resolve(__dirname, 'src/public'))
+            }
+        },
+
         progress(),
         copy({
             targets: [{src: 'src/public/*', dest: 'dist'}],
-            copyOnce: true
+            verbose: true
         }),
-        postcss(),
+        postcss({
+            extract: production,
+            minimize: production
+        }),
         resolve(),
         commonjs(),
         production && terser(), // minify, but only in production
