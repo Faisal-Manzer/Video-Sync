@@ -1,3 +1,4 @@
 import style from './style.css';
+import './helpers/jq';
 
-import './modules/app';
+import './handlers';
